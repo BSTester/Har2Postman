@@ -1,0 +1,13 @@
+.idea/
+venv
+har2postman.egg-info
+
+*/__pycache__/
+
+dist
+.coverage
+htmlcov
+
+postman_collection.json
+demo.postman_collection.json
+tests/datas/*.json
