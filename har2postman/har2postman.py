@@ -34,8 +34,6 @@ class Har2Postman:
     def run(self, generate_file=True):
         logging.info('read %s' % self.har_path)
 
-        tmp = os.path.splitext(self.har_path)[0]
-        postman_collection_path = '{}.json'.format(tmp)
         requests = load_har(self.har_path)
 
         logging.debug('request count: %d' % len(requests))
@@ -43,10 +41,10 @@ class Har2Postman:
         for request in requests:
             self.change_request(request)
 
+        # 是否保存为.json文件
         if generate_file:
+            tmp = os.path.splitext(self.har_path)[0]
+            postman_collection_path = '{}.json'.format(tmp)
             logging.info('Generate postman collection successfully: %s' % postman_collection_path)
             save_postman_collection(postman_collection_path, self.postman_collection)
         return 0
-
-
-
