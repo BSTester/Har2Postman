@@ -27,7 +27,7 @@ def extract_path(url: str):
 
     if url.find('?') != -1:
         url = url.split('?')[0]
-    return re.search('//.+?/(.+)', url).group(1).split('/')
+    return re.search('//.+?/(.+)', url).group(1)
 
 
 def extract_params(url):
@@ -56,6 +56,13 @@ def extract_params(url):
             'value': value
         })
     return query
+
+
+def extract_hosts(url: str):
+    # todo extract port
+    if url.find('/', 8) != -1:
+        url = url[:url.find('/', 8)]
+    return url.split('/')[-1]
 
 
 def change_dict_key(har_dict):
@@ -95,7 +102,7 @@ def change_url(har_request):
     protocol = re.search('(https*):', url_tmp).group(1)
 
     # 提取host
-    host = re.search('://(.+[^/])/?', url_tmp).group(1).split('.')
+    host = extract_hosts(url_tmp)
 
     # 提取path
     path = extract_path(url_tmp)
@@ -106,13 +113,13 @@ def change_url(har_request):
     return {
         'protocol': protocol,
         'host': host,
-        'path': path,
+        'path': path.split('/'),
         'query': query
     }
 
 
 def change_body(har_request):
-    mime_type: str = jsonpath.jsonpath(har_request, '$.postData.mimeType')[0]
+    mime_type: str = jsonpath.jsonpath(har_request, '$.postData.mimeType')[0] or None
 
     if mime_type is None:
         return None

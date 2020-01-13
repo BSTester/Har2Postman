@@ -34,3 +34,13 @@ class TestCommon:
     ])
     def test_change_dict_key(self, har_headers):
         assert 'name' not in change_dict_key(har_headers)[0].keys()
+
+    @pytest.mark.parametrize('url, expected', [
+        [('https://baidu.com', 'baidu.com'),
+         ('https://baidu.com/as', 'baidu'),
+         ('https://192.168.2.1/baidu.com/as/1.0.0/____', ['as', '1.0.0', '____']),
+         ('https://baidu.com/as?', ['as']),
+         ('https://baidu.com/as?a=2', ['as'])]
+    ])
+    def test_extract_hosts(self):
+        pass

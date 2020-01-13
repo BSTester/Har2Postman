@@ -14,3 +14,7 @@ class TestHar2Postman:
         result_list = jsonpath.jsonpath(har2.postman_collection, '$.item')[0]
         assert len(result_list) == count
 
+    def test_run2(self):
+        har_path = './datas/chanjet.har'
+        har2 = Har2Postman(har_path)
+        har2.run()
