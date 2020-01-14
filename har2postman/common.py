@@ -3,6 +3,9 @@ import json
 import jsonpath
 
 
+BLACKLIST = ['content-length']
+
+
 def load_har(har_path):
     """
 
@@ -27,7 +30,7 @@ def extract_path(url: str):
 
     if url.find('?') != -1:
         url = url.split('?')[0]
-    return re.search('//.+?/(.+)', url).group(1)
+    return re.search('//.+?/(.+)', url).group(1).split('/')
 
 
 def extract_params(url):
@@ -59,26 +62,32 @@ def extract_params(url):
 
 
 def extract_hosts(url: str):
-    # todo extract port
+    port = None
+    # 去除path部分
     if url.find('/', 8) != -1:
         url = url[:url.find('/', 8)]
-    return url.split('/')[-1]
+    # 去除端口部分
+    if url.find(':', 6) != -1:
+        port = re.search(':([0-9]+)', url).group(1)
+        url = url[:url.find('/', 6)]
+    return url.split('/')[-1], port
 
 
 def change_dict_key(har_dict):
     """
 
     :param har_dict: [
-        {"name": "", "value": ""},
+        {"name": "123", "value": "321"},
         ...
     ]
     :return: [
-        {"key": "", "value": ""},
+        {"key": "123", "value": "321"},
         ...
     ]
     """
     for header in har_dict:
         header['key'] = header.pop('name')
+
     return har_dict
 
 
@@ -102,7 +111,7 @@ def change_url(har_request):
     protocol = re.search('(https*):', url_tmp).group(1)
 
     # 提取host
-    host = extract_hosts(url_tmp)
+    host, port = extract_hosts(url_tmp)
 
     # 提取path
     path = extract_path(url_tmp)
@@ -113,9 +122,15 @@ def change_url(har_request):
     return {
         'protocol': protocol,
         'host': host,
-        'path': path.split('/'),
+        'path': path,
+        'port': port,
         'query': query
     }
+
+
+def change_headers(har_headers: dict):
+    har_headers = {k: v for k, v in har_headers.items() if har_headers[k] not in BLACKLIST}
+    change_dict_key(har_headers)
 
 
 def change_body(har_request):

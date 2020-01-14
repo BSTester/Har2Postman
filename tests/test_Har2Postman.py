@@ -15,6 +15,6 @@ class TestHar2Postman:
         assert len(result_list) == count
 
     def test_run2(self):
-        har_path = './datas/chanjet.har'
+        har_path = './tests/datas/chanjet.har'
         har2 = Har2Postman(har_path)
         har2.run()

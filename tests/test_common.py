@@ -2,7 +2,7 @@ import operator
 
 import pytest
 
-from har2postman.common import extract_path, extract_params, change_dict_key
+from har2postman.common import extract_path, extract_params, change_dict_key, extract_hosts
 
 
 class TestCommon:
@@ -36,11 +36,9 @@ class TestCommon:
         assert 'name' not in change_dict_key(har_headers)[0].keys()
 
     @pytest.mark.parametrize('url, expected', [
-        [('https://baidu.com', 'baidu.com'),
-         ('https://baidu.com/as', 'baidu'),
-         ('https://192.168.2.1/baidu.com/as/1.0.0/____', ['as', '1.0.0', '____']),
-         ('https://baidu.com/as?', ['as']),
-         ('https://baidu.com/as?a=2', ['as'])]
+        ('https://baidu.com', ('baidu.com', None)),
+        ('https://baidu.com/as', ('baidu.com', None)),
+        ('https://192.168.2.1/baidu.com/as/1.0.0/', ('192.168.2.1', None))
     ])
-    def test_extract_hosts(self):
-        pass
+    def test_extract_hosts(self, url, expected):
+        assert extract_hosts(url) == expected

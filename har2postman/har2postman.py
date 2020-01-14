@@ -2,7 +2,8 @@ import json
 import logging
 import os
 
-from har2postman.common import change_url, change_dict_key, load_har, save_postman_collection, change_body
+from har2postman.common import change_url, change_dict_key, load_har, save_postman_collection, change_body, \
+    change_headers
 
 
 class Har2Postman:
@@ -27,7 +28,7 @@ class Har2Postman:
             postman_request['body'] = change_body(request)
 
         # 处理 headers
-        postman_request['header'] = change_dict_key(request['headers'])
+        postman_request['header'] = change_headers(request['headers'])
 
         self.postman_collection['item'].append({'name': request['url'], 'request': postman_request})
 
