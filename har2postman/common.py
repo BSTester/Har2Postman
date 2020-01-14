@@ -53,6 +53,8 @@ def extract_params(url):
     query = []
     query_list = url.split('?')[-1].split('&')
     for i in query_list:
+        if i.find('=') == -1:
+            continue
         key, value = i.split('=')
         query.append({
             'key': key,
@@ -128,13 +130,32 @@ def change_url(har_request):
     }
 
 
-def change_headers(har_headers: dict):
-    har_headers = {k: v for k, v in har_headers.items() if har_headers[k] not in BLACKLIST}
-    change_dict_key(har_headers)
+def change_headers(har_headers: list):
+    """
+
+        :param har_headers:
+        :param har_dict: [
+            {"name": "123", "value": "321"},
+            ...
+        ]
+        :return: [
+            {"key": "123", "value": "321"},
+            ...
+        ]
+        """
+    for header in har_headers:
+        if header['name'] in BLACKLIST:
+            del header
+            continue
+        header['key'] = header.pop('name')
+    return har_headers
 
 
 def change_body(har_request):
-    mime_type: str = jsonpath.jsonpath(har_request, '$.postData.mimeType')[0] or None
+    t = jsonpath.jsonpath(har_request, '$.postData.mimeType')
+    if not t:
+        return None
+    mime_type: str = t[0] or None
 
     if mime_type is None:
         return None
@@ -150,6 +171,8 @@ def change_body(har_request):
             'mode': 'raw',
             'raw': har_request['postData']['text']
         }
+    elif mime_type.find('plain') != -1:
+        return {'mode': mime_type, 'raw': jsonpath.jsonpath(har_request, '$.postData.text')[0]}
 
     else:
         raise Exception('无法识别:%s' % mime_type)
