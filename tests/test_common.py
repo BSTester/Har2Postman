@@ -2,7 +2,7 @@ import operator
 
 import pytest
 
-from har2postman.common import extract_path, extract_params, change_dict_key, extract_hosts
+from har2postman.common import extract_path, extract_params, change_dict_key, extract_hosts, change_headers
 
 
 class TestCommon:
@@ -42,3 +42,13 @@ class TestCommon:
     ])
     def test_extract_hosts(self, url, expected):
         assert extract_hosts(url) == expected
+
+    def test_change_headers(self):
+        headers = [{"name": ":method", "value": "POST"}, {"name": ":authority", "value": "mubu.com"},
+                   {"name": ":scheme", "value": "https"}, {"name": ":path", "value": "/api/login/submit"},
+                   {"name": "content-length", "value": "49"},
+                   {"name": "accept", "value": "application/json, text/javascript, */*; q=0.01"},
+                   {"name": "origin", "value": "https://mubu.com"},
+                   {"name": "cookie", "value": "reg_focusId=82a02971-d4ce-47fe-baa9-16fa2f81bc9"}]
+        for i in change_headers(headers):
+            assert [x for x in i.keys()] == ['value', 'key']
