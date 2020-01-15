@@ -1,7 +1,7 @@
 import re
 import json
 import jsonpath
-
+import logging
 
 BLACKLIST = ['content-length', ':method', ':authority', ':scheme', ':path']
 
@@ -54,12 +54,13 @@ def extract_params(url):
     query_list = url.split('?')[-1].split('&')
     for i in query_list:
         if i.find('=') == -1:
-            continue
-        key, value = i.split('=')
-        query.append({
-            'key': key,
-            'value': value
-        })
+            query.append({'key': i, 'value': None})
+        else:
+            key, value = i.split('=')
+            query.append({
+                'key': key,
+                'value': value
+            })
     return query
 
 
@@ -70,8 +71,9 @@ def extract_hosts(url: str):
         url = url[:url.find('/', 8)]
     # 去除端口部分
     if url.find(':', 6) != -1:
-        port = re.search(':([0-9]+)', url).group(1)
-        url = url[:url.find('/', 6)]
+        port = int(re.search(':([0-9]+)', url).group(1))
+        end_number = url.find(':', 6)
+        url = url[:end_number]
     return url.split('/')[-1], port
 
 
@@ -155,12 +157,11 @@ def change_headers(har_headers: list):
 
 def change_body(har_request):
     t = jsonpath.jsonpath(har_request, '$.postData.mimeType')
-    if not t:
-        return None
-    mime_type: str = t[0] or None
 
-    if mime_type is None:
+    # t=False or t=[None]
+    if not t or t[0] is None:
         return None
+    mime_type: str = t[0]
 
     if mime_type.find('form-data') != -1:
         return {'mode': 'formdata', 'formdata': change_dict_key(har_request['postData']['params'])}
@@ -177,4 +178,5 @@ def change_body(har_request):
         return {'mode': mime_type, 'raw': jsonpath.jsonpath(har_request, '$.postData.text')[0]}
 
     else:
+        logging.error('调用{},参数为：{}'.format(change_body.__name__, mime_type, har_request))
         raise Exception('无法识别:%s' % mime_type)

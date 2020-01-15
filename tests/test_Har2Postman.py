@@ -8,6 +8,7 @@ class TestHar2Postman:
     @pytest.mark.parametrize('har_path, count', [
         ('./tests/datas/postman_echo.har', 4),
         ('./tests/datas/mubu.har', 10),
+        ('./tests/datas/Content-Type.har', 3)
     ])
     def test_run1(self, har_path, count):
         har2 = Har2Postman(har_path)
