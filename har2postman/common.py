@@ -3,7 +3,7 @@ import json
 import jsonpath
 
 
-BLACKLIST = ['content-length']
+BLACKLIST = ['content-length', ':method', ':authority', ':scheme', ':path']
 
 
 def load_har(har_path):
@@ -132,7 +132,6 @@ def change_url(har_request):
 
 def change_headers(har_headers: list):
     """
-
         :param har_headers:
         :param har_dict: [
             {"name": "123", "value": "321"},
@@ -143,12 +142,15 @@ def change_headers(har_headers: list):
             ...
         ]
         """
-    for header in har_headers:
-        if header['name'] in BLACKLIST:
-            del header
-            continue
+
+    blacklist_filter = lambda x: x not in BLACKLIST
+    har_headers = list(filter(blacklist_filter, har_headers))
+
+    def extract(header):
         header['key'] = header.pop('name')
-    return har_headers
+        return header
+
+    return list(map(extract, har_headers))
 
 
 def change_body(har_request):
