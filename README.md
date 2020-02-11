@@ -5,7 +5,7 @@
 
 ## 安装
 ```shell script
-pip isntall Har2toPostman
+pip isntall Har2Postman
 ```
 
 ## 使用
@@ -17,4 +17,4 @@ harto postman_echo.har
 # INFO:root:Generate postman collection successfully: postman_echo.json
 ```
 2.在postman中导入postman_echo.json文件
-![](https://github.com/whitexie/Har2Postman/blob/master/postman_collection1.png)
+![](https://i.loli.net/2020/02/11/7e1Zm2wrNIF5WEB.png)
