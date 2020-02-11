@@ -2,7 +2,7 @@ import operator
 
 import pytest
 
-from har2postman.common import extract_path, extract_params, change_dict_key, extract_hosts, change_headers
+from har2postman.common import extract_path, extract_params, change_dict_key, extract_hosts, change_headers, change_body
 
 
 class TestCommon:
@@ -23,7 +23,8 @@ class TestCommon:
     @pytest.mark.parametrize('url, expected', [
         ('https://www.baidu.com/wd?q=testerhome&encoding=utf-8', [{'key': 'q', 'value': 'testerhome'},
                                                                   {'key': 'encoding', 'value': 'utf-8'}]),
-        ('http://sit-api.scooper.news/eagle-api/api?api_code=eagle.api.checkAppUpdate&clientVersionName=T4.7.35',
+        ('https://127.0.0.1/2?api', [{'key': 'api', 'value': None}]),
+        ('http://127.0.0.1/api?api_code=eagle.api.checkAppUpdate&clientVersionName=T4.7.35',
          [{'key': 'api_code', 'value': 'eagle.api.checkAppUpdate'}, {'key': 'clientVersionName', 'value': 'T4.7.35'}])
     ])
     def test_extract_params(self, url, expected):
@@ -38,7 +39,9 @@ class TestCommon:
     @pytest.mark.parametrize('url, expected', [
         ('https://baidu.com', ('baidu.com', None)),
         ('https://baidu.com/as', ('baidu.com', None)),
-        ('https://192.168.2.1/baidu.com/as/1.0.0/', ('192.168.2.1', None))
+        ('https://baidu.com:443', ('baidu.com', 443)),
+        ('https://127.0.0.1:8000', ('127.0.0.1', 8000)),
+        ('https://192.168.2.1/', ('192.168.2.1', None))
     ])
     def test_extract_hosts(self, url, expected):
         assert extract_hosts(url) == expected
@@ -52,3 +55,17 @@ class TestCommon:
                    {"name": "cookie", "value": "reg_focusId=82a02971-d4ce-47fe-baa9-16fa2f81bc9"}]
         for i in change_headers(headers):
             assert [x for x in i.keys()] == ['value', 'key']
+
+    def test_change_body_error(self):
+        har_request = {
+            "postData": {
+                "mimeType": "123",
+                "text": ""
+            }
+        }
+        try:
+            change_body(har_request)
+            assert False
+        except Exception:
+            assert True
+
