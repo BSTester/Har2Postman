@@ -1,7 +1,9 @@
-import re
 import json
-import jsonpath
 import logging
+import re
+from urllib.parse import urlparse
+
+import jsonpath
 
 BLACKLIST = ['content-length', ':method', ':authority', ':scheme', ':path']
 
@@ -22,20 +24,9 @@ def save_postman_collection(file_path, postman_json):
         postman.write(json.dumps(postman_json, indent=4, ensure_ascii=False))
 
 
-def extract_path(url: str):
-    if url.count('/') < 3 or (url.count('3') == 3 and url[-1] == '/'):
-        # eg. https://www.baidu.com
-        # eg. https://www.baidu.com/
-        return []
-
-    if url.find('?') != -1:
-        url = url.split('?')[0]
-    return re.search('//.+?/(.+)', url).group(1).split('/')
-
-
-def extract_params(url):
+def extract_params(query):
     """
-    :param url: (str) eg: https://www.baidu.com/wd?q=testerhome&encoding=utf-8
+    :param query: (str) eg: q=testerhome&encoding=utf-8
     :return:
         [
             {
@@ -48,33 +39,21 @@ def extract_params(url):
             }
         ]
     """
-    if url.find('?') == -1:
-        return []
-    query = []
-    query_list = url.split('?')[-1].split('&')
-    for i in query_list:
-        if i.find('=') == -1:
-            query.append({'key': i, 'value': None})
-        else:
-            key, value = i.split('=')
-            query.append({
-                'key': key,
-                'value': value
-            })
-    return query
+    params = []
+    if not query:
+        return params
 
-
-def extract_hosts(url: str):
-    port = None
-    # 去除path部分
-    if url.find('/', 8) != -1:
-        url = url[:url.find('/', 8)]
-    # 去除端口部分
-    if url.find(':', 6) != -1:
-        port = int(re.search(':([0-9]+)', url).group(1))
-        end_number = url.find(':', 6)
-        url = url[:end_number]
-    return url.split('/')[-1], port
+    for i in query.split('&'):
+        param = i.split('=')
+        key = param[0]
+        value = None
+        if len(param) > 1:
+            value = param[-1]
+        params.append({
+            'key': key,
+            'value': value
+        })
+    return params
 
 
 def change_dict_key(har_dict):
@@ -97,10 +76,11 @@ def change_dict_key(har_dict):
 
 def change_url(har_request):
     """
-    :param har_request: {'url': 'https://www.baidu.com/s?wd=12345'}
+    :param har_request: {'url': 'https://www.baidu.com:80/s?wd=12345'}
     :return: {
         'protocol': https,
         'host': ['www', 'baidu', 'com'],
+        'port': 80,
         'path': ['s'],
         'query': [
             {'key': 'wd', 'value': '12345'},
@@ -109,26 +89,25 @@ def change_url(har_request):
     }
     """
 
-    url_tmp: str = har_request['url']
+    url = urlparse(har_request['url'])
 
-    # 提取协议 http || https
-    protocol = re.search('(https*):', url_tmp).group(1)
+    protocol = url.scheme
 
-    # 提取host
-    host, port = extract_hosts(url_tmp)
+    host = url.netloc.split('.')
 
-    # 提取path
-    path = extract_path(url_tmp)
+    port = url.port or ""
+
+    path = url.path.split('/')
 
     # 提取query
-    query = extract_params(url_tmp)
+    params = extract_params(url.query)
 
     return {
         'protocol': protocol,
         'host': host,
         'path': path,
         'port': port,
-        'query': query
+        'query': params
     }
 
 

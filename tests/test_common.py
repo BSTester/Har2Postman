@@ -2,29 +2,15 @@ import operator
 
 import pytest
 
-from har2postman.common import extract_path, extract_params, change_dict_key, extract_hosts, change_headers, change_body
+from har2postman.common import extract_params, change_dict_key, change_headers, change_body
 
 
 class TestCommon:
 
     @pytest.mark.parametrize('url, expected', [
-        ('https://baidu.com', []),
-        ('https://baidu.com/as', ['as']),
-        ('https://baidu.com/as/1.0.0/____', ['as', '1.0.0', '____']),
-        ('https://baidu.com/as?', ['as']),
-        ('https://baidu.com/as?a=2', ['as']),
-        ('http://sit-api.scooper.news/eagle-api/api?api_code=eagle.api.checkAppUpdate&clientVersionName=T4.7.35',
-         ['eagle-api', 'api'])
-    ])
-    def test_extract_path(self, url, expected):
-        result = extract_path(url)
-        assert result == expected
-
-    @pytest.mark.parametrize('url, expected', [
-        ('https://www.baidu.com/wd?q=testerhome&encoding=utf-8', [{'key': 'q', 'value': 'testerhome'},
-                                                                  {'key': 'encoding', 'value': 'utf-8'}]),
-        ('https://127.0.0.1/2?api', [{'key': 'api', 'value': None}]),
-        ('http://127.0.0.1/api?api_code=eagle.api.checkAppUpdate&clientVersionName=T4.7.35',
+        ('q=testerhome&encoding=utf-8', [{'key': 'q', 'value': 'testerhome'},
+                                         {'key': 'encoding', 'value': 'utf-8'}]),
+        ('api_code=eagle.api.checkAppUpdate&clientVersionName=T4.7.35',
          [{'key': 'api_code', 'value': 'eagle.api.checkAppUpdate'}, {'key': 'clientVersionName', 'value': 'T4.7.35'}])
     ])
     def test_extract_params(self, url, expected):
@@ -35,16 +21,6 @@ class TestCommon:
     ])
     def test_change_dict_key(self, har_headers):
         assert 'name' not in change_dict_key(har_headers)[0].keys()
-
-    @pytest.mark.parametrize('url, expected', [
-        ('https://baidu.com', ('baidu.com', None)),
-        ('https://baidu.com/as', ('baidu.com', None)),
-        ('https://baidu.com:443', ('baidu.com', 443)),
-        ('https://127.0.0.1:8000', ('127.0.0.1', 8000)),
-        ('https://192.168.2.1/', ('192.168.2.1', None))
-    ])
-    def test_extract_hosts(self, url, expected):
-        assert extract_hosts(url) == expected
 
     def test_change_headers(self):
         headers = [{"name": ":method", "value": "POST"}, {"name": ":authority", "value": "mubu.com"},
@@ -68,4 +44,3 @@ class TestCommon:
             assert False
         except Exception:
             assert True
-

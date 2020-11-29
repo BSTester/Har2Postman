@@ -2,8 +2,7 @@ import json
 import logging
 import os
 
-from har2postman.common import change_url, change_dict_key, load_har, save_postman_collection, change_body, \
-    change_headers
+from har2postman.common import (change_url, load_har, save_postman_collection, change_body, change_headers)
 
 
 class Har2Postman:
@@ -33,11 +32,11 @@ class Har2Postman:
         self.postman_collection['item'].append({'name': request['url'], 'request': postman_request})
 
     def run(self, generate_file=True):
-        logging.info('read %s' % self.har_path)
+        logging.info(f'read {self.har_path}')
 
         requests = load_har(self.har_path)
 
-        logging.debug('request count: %d' % len(requests))
+        logging.debug(f'request count: {len(requests)}')
 
         for request in requests:
             self.change_request(request)
