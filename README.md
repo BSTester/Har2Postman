@@ -1,5 +1,5 @@
 ## Har2Postman
-[![unittest](https://github.com/whitexie/Har2Postman/workflows/unittest/badge.svg)
+![unittest](https://github.com/whitexie/Har2Postman/workflows/unittest/badge.svg)
 > 将har文件转换为postman可导入文件
 
 ## 安装
