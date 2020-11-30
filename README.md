@@ -1,6 +1,5 @@
 ## Har2Postman
-[![travis-ci](https://api.travis-ci.org/whitexie/Har2Postman.svg?branch=master)](https://travis-ci.org/whitexie/Har2toPostman)
-![coveralls](https://coveralls.io/repos/github/whitexie/Har2Postman/badge.svg?branch=master)
+[![unittest](https://github.com/whitexie/Har2Postman/workflows/unittest/badge.svg)
 > 将har文件转换为postman可导入文件
 
 ## 安装
