@@ -31,4 +31,4 @@ jobs:
     - name: run unittest
       run: |
         python -m poetry run coverage run --source=har2postman -m pytest tests -vvv
-        python -m run coverage report
+        python -m poetry run coverage report
