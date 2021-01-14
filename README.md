@@ -4,7 +4,7 @@
 
 ## 安装
 ```shell script
-pip isntall Har2Postman
+pip install Har2Postman
 ```
 
 ## 使用
