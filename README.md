@@ -10,7 +10,7 @@ pip isntall Har2Postman
 ## 使用
 1.将har文件转换为postman可导入文件
 ```shell script
-harto postman_echo.har
+har2postman postman_echo.har
 
 # INFO:root:read postman_echo.har
 # INFO:root:Generate postman collection successfully: postman_echo.json
