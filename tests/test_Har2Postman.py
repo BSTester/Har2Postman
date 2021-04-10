@@ -2,7 +2,7 @@ import json
 from os import path
 from jsonschema.validators import validate
 
-import jsonpath
+import jmespath
 import pytest
 
 from har2postman.har2postman import Har2Postman
@@ -20,7 +20,7 @@ class TestHar2Postman:
     def test_run1(self, har_path, count):
         har2 = Har2Postman(har_path)
         har2.run()
-        result_list = jsonpath.jsonpath(har2.postman_collection, '$.item')[0]
+        result_list = jmespath.search('item', har2.postman_collection)
         assert len(result_list) == count
 
     def test_collection_schema(self):

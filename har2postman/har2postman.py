@@ -2,7 +2,9 @@ import json
 import logging
 import os
 
-from har2postman.common import (change_url, load_har, save_postman_collection, change_body, change_headers)
+import jmespath
+
+from har2postman.common import (convert_url, load_har, save_postman_collection, convert_body, convert_headers)
 
 
 class Har2Postman:
@@ -17,29 +19,30 @@ class Har2Postman:
             'item': []
         }
 
-    def change_request(self, request):
+    def __convert_request(self, request):
         logging.debug('-----------------------item------------------')
         logging.debug('%s' % json.dumps(request, ensure_ascii=False))
 
-        postman_request = {'method': request['method'], 'header': [], 'body': {}, 'url': change_url(request)}
+        postman_request = {'method': request['method'], 'header': [], 'body': {}, 'url': convert_url(request)}
 
         if request['method'] == 'POST':
-            postman_request['body'] = change_body(request)
+            postman_request['body'] = convert_body(request)
 
         # 处理 headers
-        postman_request['header'] = change_headers(request['headers'])
+        postman_request['header'] = convert_headers(request['headers'])
 
         self.postman_collection['item'].append({'name': request['url'], 'request': postman_request})
 
     def run(self, generate_file=True):
         logging.info(f'read {self.har_path}')
 
-        requests = load_har(self.har_path)
+        data = load_har(self.har_path)
+        requests = jmespath.search('log.entries[].request', data)
 
         logging.debug(f'request count: {len(requests)}')
 
         for request in requests:
-            self.change_request(request)
+            self.__convert_request(request)
 
         # 是否保存为.json文件
         if generate_file:

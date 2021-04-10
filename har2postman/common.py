@@ -1,11 +1,8 @@
 import json
 import logging
-import re
 from urllib.parse import urlparse
 
-import jsonpath
-
-BLACKLIST = ['content-length', ':method', ':authority', ':scheme', ':path']
+import jmespath
 
 
 def load_har(har_path):
@@ -15,8 +12,7 @@ def load_har(har_path):
     :return:
     """
     with open(har_path, 'r', encoding='utf-8') as har:
-        var = json.loads(har.read())
-        return jsonpath.jsonpath(var, '$.log.entries..request')
+        return json.load(har)
 
 
 def save_postman_collection(file_path, postman_json):
@@ -56,7 +52,7 @@ def extract_params(query):
     return params
 
 
-def change_dict_key(har_dict):
+def convert_dict_key(har_dict):
     """
 
     :param har_dict: [
@@ -74,7 +70,7 @@ def change_dict_key(har_dict):
     return har_dict
 
 
-def change_url(har_request):
+def convert_url(har_request):
     """
     :param har_request: {'url': 'https://www.baidu.com:80/s?wd=12345'}
     :return: {
@@ -111,10 +107,9 @@ def change_url(har_request):
     }
 
 
-def change_headers(har_headers: list):
+def convert_headers(har_headers: list):
     """
-        :param har_headers:
-        :param har_dict: [
+        :param har_headers: [
             {"name": "123", "value": "321"},
             ...
         ]
@@ -124,8 +119,9 @@ def change_headers(har_headers: list):
         ]
         """
 
-    blacklist_filter = lambda x: x not in BLACKLIST
-    har_headers = list(filter(blacklist_filter, har_headers))
+    black_list = ['content-length']
+
+    har_headers = list(filter(lambda x: x not in black_list, har_headers))
 
     def extract(header):
         header['key'] = header.pop('name')
@@ -134,19 +130,18 @@ def change_headers(har_headers: list):
     return list(map(extract, har_headers))
 
 
-def change_body(har_request):
-    t = jsonpath.jsonpath(har_request, '$.postData.mimeType')
+def convert_body(har_request):
+    mime_type = jmespath.search('postData.mimeType', har_request)
 
     # t=False or t=[None]
-    if not t or t[0] is None:
+    if not mime_type or mime_type is None:
         return None
-    mime_type: str = t[0]
 
     if mime_type.find('form-data') != -1:
-        return {'mode': 'formdata', 'formdata': change_dict_key(har_request['postData']['params'])}
+        return {'mode': 'formdata', 'formdata': convert_dict_key(har_request['postData']['params'])}
 
     elif mime_type.find('x-www-form-urlencoded') != -1:
-        return {'mode': 'urlencoded', 'urlencoded': change_dict_key(har_request['postData']['params'])}
+        return {'mode': 'urlencoded', 'urlencoded': convert_dict_key(har_request['postData']['params'])}
 
     elif mime_type.find('json') != -1:
         return {
@@ -154,8 +149,8 @@ def change_body(har_request):
             'raw': har_request['postData']['text']
         }
     elif mime_type.find('plain') != -1:
-        return {'mode': mime_type, 'raw': jsonpath.jsonpath(har_request, '$.postData.text')[0]}
+        return {'mode': mime_type, 'raw': jmespath.search('postData.text', har_request)}
 
     else:
-        logging.error('调用{},参数为：{}'.format(change_body.__name__, mime_type, har_request))
+        logging.error('调用{},参数为：{}'.format(convert_body.__name__, mime_type, har_request))
         raise Exception('无法识别:%s' % mime_type)
