@@ -99,6 +99,7 @@ def convert_url(har_request):
     params = extract_params(url.query)
 
     return {
+        'raw': url.path,
         'protocol': protocol,
         'host': host,
         'path': path,
