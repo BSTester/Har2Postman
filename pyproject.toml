@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "har2postman"
+name = "har2pm"
 version = "0.1.4"
 description = "Convert HAR(HTTP Archive) to Postman Collection"
 authors = ["ysansan"]
