@@ -5,7 +5,7 @@ from jsonschema.validators import validate
 import jmespath
 import pytest
 
-from har2postman.har2postman import Har2Postman
+from har2pm.har2postman import Har2Postman
 
 BASE_PATH = path.dirname(__file__)
 

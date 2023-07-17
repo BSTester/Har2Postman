@@ -1,8 +1,8 @@
 import argparse
 import sys
 import logging
-from har2postman.har2postman import Har2Postman
-from har2postman import __version__
+from har2pm.har2postman import Har2Postman
+from har2pm import __version__
 
 
 def main():

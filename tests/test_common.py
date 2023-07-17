@@ -2,7 +2,7 @@ import operator
 
 import pytest
 
-from har2postman.common import extract_params, convert_dict_key, convert_headers, convert_body
+from har2pm.common import extract_params, convert_dict_key, convert_headers, convert_body
 
 
 class TestCommon:

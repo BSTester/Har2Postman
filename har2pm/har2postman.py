@@ -4,7 +4,7 @@ import os
 
 import jmespath
 
-from har2postman.common import (convert_url, load_har, save_postman_collection, convert_body, convert_headers)
+from har2pm.common import (convert_url, load_har, save_postman_collection, convert_body, convert_headers)
 
 
 class Har2Postman:
