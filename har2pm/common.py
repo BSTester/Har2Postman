@@ -17,7 +17,7 @@ def load_har(har_path):
 
 def save_postman_collection(file_path, postman_json):
     with open(file_path, 'w') as postman:
-        postman.write(json.dumps(postman_json, indent=4, ensure_ascii=False))
+        postman.write(json.dumps(postman_json, indent=4, ensure_ascii=True))
 
 
 def extract_params(query):
