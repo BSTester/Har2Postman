@@ -122,7 +122,7 @@ def convert_headers(har_headers: list):
 
     black_list = ['content-length', 'accept-encoding']
 
-    har_headers = list(filter(lambda x: x not in black_list, har_headers))
+    har_headers = list(filter(lambda x: x.get('name', '').lower() not in black_list, har_headers))
 
     def extract(header):
         header['key'] = header.pop('name')
