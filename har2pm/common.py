@@ -120,7 +120,7 @@ def convert_headers(har_headers: list):
         ]
         """
 
-    black_list = ['content-length']
+    black_list = ['content-length', 'accept-encoding']
 
     har_headers = list(filter(lambda x: x not in black_list, har_headers))
 
