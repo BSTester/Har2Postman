@@ -31,7 +31,10 @@ class Har2Postman:
         # 处理 headers
         postman_request['header'] = convert_headers(request['headers'])
 
-        self.postman_collection['item'].append({'name': request['url'], 'request': postman_request})
+        post_data = {'name': request['url'], 'request': postman_request}
+
+        if post_data not in self.postman_collection['item']:
+            self.postman_collection['item'].append(post_data)
 
     def run(self, generate_file=True):
         logging.info(f'read {self.har_path}')
