@@ -9,8 +9,9 @@ from har2pm.common import (convert_url, load_har, save_postman_collection, conve
 
 class Har2Postman:
 
-    def __init__(self, har_path):
+    def __init__(self, har_path, skip_same_url=False):
         self.har_path = har_path
+        self.skip_same_url = skip_same_url
         self.postman_collection = {
             "info": {
                 "name": "Har2toPostman",
@@ -32,6 +33,10 @@ class Har2Postman:
         postman_request['header'] = convert_headers(request['headers'])
 
         post_data = {'name': request['url'], 'request': postman_request}
+
+        # 如果skip_same_url为True，则跳过相同的url
+        if self.skip_same_url and request['url'] in [url['name'] for url in self.postman_collection['item']]:
+            return
 
         if post_data not in self.postman_collection['item']:
             self.postman_collection['item'].append(post_data)

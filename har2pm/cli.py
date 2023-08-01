@@ -14,6 +14,10 @@ def main():
         '--log-level', default='INFO',
         help="Specify logging level, default is INFO.")
     parser.add_argument(
+        '-S', '--skip-same-url', dest='skip_same_url', action='store_true',
+        help="skip same url",
+    )
+    parser.add_argument(
         'har_path', nargs='?',
         help="har file path")
 
@@ -30,11 +34,15 @@ def main():
     if args.version:
         print("Version:{}".format(__version__))
         return 0
+    
+    skip_same_url = False
+    if args.skip_same_url:
+        skip_same_url = True
 
     har_path = args.har_path
     if not har_path or not har_path.endswith('.har'):
         logging.error('HAR file not specified.')
         sys.exit(1)
-    har2 = Har2Postman(har_path)
+    har2 = Har2Postman(har_path, skip_same_url)
     har2.run()
     return 0
